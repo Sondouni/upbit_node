@@ -107,6 +107,7 @@ app.get('/trackingOn',async (req,res)=>{
 
     staffJson.forEach((item)=>{
         // console.log();
+
         tempSocketList[item._id['$oid']].socket.emit('tracking-on',{
             usrCd: item._id['$oid'],
             status: 1,
@@ -135,7 +136,10 @@ app.get('/trackingOff',async (req,res)=>{
 app.get('/tracking',async (req,res)=>{
 
     intervalCd = setInterval(()=>{
+        console.log(Object.entries(tempSocketList).length,'소캣갯수')
         staffJson.forEach((item)=>{
+
+
             const rdCoords = getRandomCoords();
             tempSocketList[item._id['$oid']].socket.emit('tracking',{
                 coords:{
