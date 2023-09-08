@@ -63,8 +63,8 @@ const initWebSocket = async () => {
 
 const getRandomCoords =  () => {
     const numCoordinates = 1;
-    const centerLat = 37.525897;
-    const centerLng = 126.935725;
+    const centerLat = 37.526362213;
+    const centerLng = 127.028476085;
     const radius = 3; // in kilometers
 
     const coordinates = [];
