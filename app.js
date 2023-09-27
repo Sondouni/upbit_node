@@ -12,8 +12,11 @@ const fs = require('fs');
 
 const jsonFile = fs.readFileSync('./geolocation_staffs.json', 'utf8');
 const tempStaff = JSON.parse(jsonFile);
-// const staffJson = tempStaff.slice(0,2500);
-const staffJson = tempStaff;
+const staffJson = tempStaff.slice(0,500);
+// const staffJson = tempStaff;
+
+const crowdJsonFile = fs.readFileSync('./crowds.json', 'utf8');
+const tempCrowd = JSON.parse(crowdJsonFile);
 
 const app = express();
 const port = 3333;
@@ -29,8 +32,8 @@ const initWebSocket = async () => {
 
         const ioSocket = io(
             // `${SOCKET_ADDRESS}`,
-            'https://socket.orange-play.co.kr',
-            // 'http://172.30.1.38:4000',
+            // 'https://socket.orange-play.co.kr',
+            'http://172.30.1.42:4000',
             {
                 transports: ['websocket'],
                 query: {
@@ -63,9 +66,13 @@ const initWebSocket = async () => {
 
 const getRandomCoords =  () => {
     const numCoordinates = 1;
-    const centerLat = 37.526362213;
-    const centerLng = 127.028476085;
-    const radius = 3; // in kilometers
+    //여의도
+    // const centerLat = 37.523729;
+    // const centerLng = 126.935856;
+    //압구정
+    const centerLat = 37.523278;
+    const centerLng = 127.028496;
+    const radius = 0.5; // in kilometers
 
     const coordinates = [];
 
@@ -170,6 +177,60 @@ app.get('/socketOff',async (req,res)=>{
     staffJson.forEach((item)=>{
         // console.log();
         tempSocketList[item._id['$oid']].socket.close();
+    })
+    res.send(`socket socket`);
+})
+
+app.get('/workingHistory',async (req,res)=>{
+
+    staffJson.forEach((item)=>{
+        tempSocketList[item._id['$oid']].socket.emit('workingHistory',{
+            usrCd: item._id['$oid'],
+            festivalIdx: 8
+        });
+    })
+    res.send(`socket socket`);
+})
+
+app.get('/getCrowds',async (req,res)=>{
+
+    staffJson.forEach((item)=>{
+        tempSocketList[item._id['$oid']].socket.emit('crowdArea',{
+            type: 0,
+            festivalIdx: 8
+        });
+    })
+    res.send(`socket socket`);
+})
+
+app.get('/insertCrowds',async (req,res)=>{
+
+    staffJson.forEach((item)=>{
+        tempSocketList[item._id['$oid']].socket.emit('crowdInsert',[{
+            crowd: tempCrowd[Math.floor(Math.random() * tempCrowd.length)]._id['$oid'],
+            festivalIdx: 8,
+            regDt:new Date(),
+            weight:Math.floor(Math.random() * 4)+1,
+            staff:item._id['$oid']
+        }]);
+    })
+    res.send(`socket socket`);
+})
+
+app.get('/makeEmergency',async (req,res)=>{
+
+    staffJson.forEach((item)=>{
+        const rdCoords = getRandomCoords();
+        tempSocketList[item._id['$oid']].socket.emit('emergency',{
+            location:{
+                latitude:rdCoords[0].lat,
+                longitude:rdCoords[0].lng
+            },
+            usrCd:item._id['$oid'],
+            regDt:new Date().getTime(),
+            festivalIdx:8,
+            isCheck:'N'
+        });
     })
     res.send(`socket socket`);
 })
